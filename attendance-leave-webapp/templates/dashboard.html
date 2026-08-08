@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <div class="hero-left">
+    <span class="eyebrow">Today &middot; {{ today }}</span>
+    <h1>Who's on the clock</h1>
+    <p class="hero-sub">Punch a student in or out, or jump to leave approvals below.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">{{ active_count }}</span>
+      <span class="stat-label">active employees</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num stat-amber">{{ clocked_in_count }}</span>
+      <span class="stat-label">clocked in now</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num {{ 'stat-red' if pending_count else '' }}">{{ pending_count }}</span>
+      <span class="stat-label">pending leave</span>
+    </div>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Employee status</h2>
+    <a href="{{ url_for('students') }}" class="link-small">Manage employees &rarr;</a>
+  </div>
+
+  {% if not student_rows %}
+    <div class="empty">No active employees yet. <a href="{{ url_for('students') }}">Add one</a> to get started.</div>
+  {% else %}
+  <div class="card-grid">
+    {% for r in student_rows %}
+      <div class="punch-card status-{{ r.status }}">
+        <div class="punch-card-top">
+          <span class="dot dot-{{ r.status }}"></span>
+          <span class="punch-id">{{ r.student.student_id }}</span>
+        </div>
+        <div class="punch-name">{{ r.student.name }}</div>
+        <div class="punch-dept">{{ r.student.department or 'No department' }}</div>
+
+        {% if r.status == 'not_started' %}
+          <span class="punch-state">Not clocked in</span>
+        {% elif r.status == 'clocked_in' %}
+          <span class="punch-state">In since {{ r.today.clock_in }}</span>
+        {% else %}
+          <span class="punch-state">Done &middot; {{ r.today.hours_worked }}h</span>
+        {% endif %}
+
+        <div class="punch-actions">
+          <form method="post" action="{{ url_for('clock', student_id=r.student.student_id, action='in') }}">
+            <button class="btn btn-in" {{ 'disabled' if r.status == 'clocked_in' }}>Clock in</button>
+          </form>
+          <form method="post" action="{{ url_for('clock', student_id=r.student.student_id, action='out') }}">
+            <button class="btn btn-out" {{ 'disabled' if r.status != 'clocked_in' }}>Clock out</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

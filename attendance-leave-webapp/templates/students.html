@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <span class="eyebrow">Roster</span>
+  <h1>Student employees</h1>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>Add employee</h2></div>
+  <form method="post" class="form-row">
+    <div class="field">
+      <label>Student ID</label>
+      <input type="text" name="student_id" placeholder="S104" required>
+    </div>
+    <div class="field field-grow">
+      <label>Full name</label>
+      <input type="text" name="name" placeholder="Jane Smith" required>
+    </div>
+    <div class="field">
+      <label>Department</label>
+      <input type="text" name="department" placeholder="Library">
+    </div>
+    <div class="field field-sm">
+      <label>Hourly wage</label>
+      <input type="number" step="0.01" name="hourly_wage" placeholder="12.00">
+    </div>
+    <div class="field field-btn">
+      <button class="btn btn-primary" type="submit">Add employee</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2>Roster</h2></div>
+  {% if not students %}
+    <div class="empty">No employees on file yet.</div>
+  {% else %}
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Department</th><th>Wage / hr</th><th>Status</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr class="{{ 'row-muted' if not s.is_active }}">
+        <td class="mono">{{ s.student_id }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.department or '—' }}</td>
+        <td class="mono">${{ '%.2f' % s.hourly_wage }}</td>
+        <td>
+          <span class="badge {{ 'badge-green' if s.is_active else 'badge-muted' }}">
+            {{ 'Active' if s.is_active else 'Inactive' }}
+          </span>
+        </td>
+        <td class="align-right">
+          <form method="post" action="{{ url_for('toggle_student', student_id=s.student_id) }}">
+            <button class="btn-link">{{ 'Deactivate' if s.is_active else 'Reactivate' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+{% endblock %}

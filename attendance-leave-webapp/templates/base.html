@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Timecard{% endblock %} — Student Employee System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">&#9200;</span>
+      <div class="brand-text">
+        <span class="brand-name">Timecard</span>
+        <span class="brand-sub">Student Employment</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link {{ 'active' if request.path == '/' }}">
+        <span class="nav-index">01</span> Dashboard
+      </a>
+      <a href="{{ url_for('students') }}" class="nav-link {{ 'active' if request.path == '/students' }}">
+        <span class="nav-index">02</span> Employees
+      </a>
+      <a href="{{ url_for('attendance') }}" class="nav-link {{ 'active' if request.path == '/attendance' }}">
+        <span class="nav-index">03</span> Attendance Log
+      </a>
+      <a href="{{ url_for('leave') }}" class="nav-link {{ 'active' if request.path == '/leave' }}">
+        <span class="nav-index">04</span> Leave Requests
+      </a>
+      <a href="{{ url_for('reports') }}" class="nav-link {{ 'active' if request.path == '/reports' }}">
+        <span class="nav-index">05</span> Reports
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div id="live-clock" class="live-clock">--:--:--</div>
+      <div class="live-clock-label">local time</div>
+    </div>
+  </aside>
+
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+function tick() {
+  const el = document.getElementById('live-clock');
+  if (!el) return;
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  el.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+tick();
+setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
